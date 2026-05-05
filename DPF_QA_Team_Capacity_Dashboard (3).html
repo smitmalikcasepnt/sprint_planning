@@ -1,0 +1,1281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DPF QA Team Capacity</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+:root {
+  --bg-0:#06090f;--bg-1:#0d1117;--bg-2:#151b28;--bg-hover:#1a2236;--bg-input:#111827;
+  --border:#222d42;--border-hi:#334163;
+  --tx-1:#e2e8f4;--tx-2:#8494b2;--tx-3:#4e5f7e;
+  --blue:#3b82f6;--blue-g:rgba(59,130,246,0.14);
+  --green:#22c55e;--green-g:rgba(34,197,94,0.12);
+  --amber:#f59e0b;--amber-g:rgba(245,158,11,0.12);
+  --red:#ef4444;--red-g:rgba(239,68,68,0.12);
+  --purple:#a855f7;--purple-g:rgba(168,85,247,0.12);
+  --cyan:#06b6d4;--cyan-g:rgba(6,182,212,0.12);
+  --orange:#f97316;--orange-g:rgba(249,115,22,0.12);
+  --rose:#f43f5e;--rose-g:rgba(244,63,94,0.12);
+  --pink:#ec4899;--pink-g:rgba(236,72,153,0.12);
+  --r:10px;--rs:6px;--rl:14px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'DM Sans',sans-serif;background:var(--bg-0);color:var(--tx-1);min-height:100vh}
+body::before{content:'';position:fixed;inset:0;background-image:radial-gradient(ellipse 80% 50% at 50% 0%,rgba(168,85,247,0.05),transparent),linear-gradient(rgba(168,85,247,0.02) 1px,transparent 1px),linear-gradient(90deg,rgba(168,85,247,0.02) 1px,transparent 1px);background-size:100% 100%,52px 52px,52px 52px;pointer-events:none;z-index:0}
+
+/* LOGIN */
+#loginScreen{position:fixed;inset:0;z-index:1000;display:flex;align-items:center;justify-content:center;background:var(--bg-0)}
+.login-card{background:var(--bg-2);border:1px solid var(--border);border-radius:var(--rl);padding:48px 44px;width:450px;box-shadow:0 8px 64px rgba(0,0,0,0.5),0 0 80px rgba(168,85,247,0.05);animation:scaleIn .4s cubic-bezier(.16,1,.3,1);position:relative;z-index:1}
+.login-logo{width:56px;height:56px;background:linear-gradient(135deg,var(--purple),var(--pink));border-radius:14px;display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-weight:700;font-size:16px;color:#fff;margin-bottom:28px;box-shadow:0 0 32px rgba(168,85,247,0.3)}
+.login-card h2{font-size:22px;font-weight:700;margin-bottom:6px;letter-spacing:-.4px}
+.login-sub{font-size:13px;color:var(--tx-3);margin-bottom:32px;line-height:1.6}
+.login-sub strong{color:var(--tx-2);font-weight:600}
+.input-group{margin-bottom:20px}
+.input-group label{display:block;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.7px;color:var(--tx-3);margin-bottom:8px}
+.input-group input{width:100%;padding:12px 16px;background:var(--bg-input);border:1px solid var(--border);border-radius:var(--rs);color:var(--tx-1);font-family:'JetBrains Mono',monospace;font-size:13px;outline:none;transition:border-color .2s}
+.input-group input:focus{border-color:var(--purple);box-shadow:0 0 0 3px var(--purple-g)}
+.input-group input::placeholder{color:var(--tx-3)}
+.login-btn{width:100%;padding:13px;background:linear-gradient(135deg,var(--purple),#9333ea);border:none;border-radius:var(--rs);color:#fff;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;cursor:pointer;transition:all .2s;margin-top:8px;box-shadow:0 4px 16px rgba(168,85,247,0.25)}
+.login-btn:hover{transform:translateY(-1px);box-shadow:0 6px 24px rgba(168,85,247,0.35)}
+.login-btn:disabled{opacity:.6;cursor:not-allowed;transform:none}
+.login-error{margin-top:16px;padding:10px 14px;background:var(--red-g);border:1px solid rgba(239,68,68,0.2);border-radius:var(--rs);font-size:12px;color:var(--red);display:none;word-break:break-word}
+
+/* DASHBOARD */
+#dashboard{display:none;position:relative;z-index:1}
+.header{padding:18px 40px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);background:rgba(13,17,23,0.92);backdrop-filter:blur(16px);position:sticky;top:0;z-index:100;flex-wrap:wrap;gap:12px}
+.header-left{display:flex;align-items:center;gap:14px}
+.logo{width:36px;height:36px;background:linear-gradient(135deg,var(--purple),var(--pink));border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-weight:700;font-size:12px;color:#fff;box-shadow:0 0 20px rgba(168,85,247,0.25)}
+.header h1{font-size:16px;font-weight:700;letter-spacing:-.3px}
+.header h1 span{color:var(--tx-3);font-weight:400}
+.qa-pill{font-family:'JetBrains Mono',monospace;font-size:10px;padding:3px 9px;border-radius:12px;background:var(--purple-g);color:var(--purple);border:1px solid rgba(168,85,247,0.25);font-weight:700;letter-spacing:.4px;margin-left:4px}
+.header-right{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+
+.iter-select{font-family:'JetBrains Mono',monospace;font-size:12px;padding:8px 32px 8px 14px;background:var(--bg-input);border:1px solid var(--border);border-radius:var(--rs);color:var(--tx-1);cursor:pointer;outline:none;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' fill='%234e5f7e'%3E%3Cpath d='M1 3l4 4 4-4'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;transition:border-color .2s;max-width:260px}
+.iter-select:focus{border-color:var(--purple)}
+.iter-select option{background:var(--bg-1);color:var(--tx-1)}
+
+.icon-btn{width:34px;height:34px;background:var(--bg-input);border:1px solid var(--border);border-radius:var(--rs);color:var(--tx-2);cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;transition:all .2s}
+.icon-btn:hover{border-color:var(--purple);color:var(--purple)}
+.icon-btn.spinning svg{animation:spin .7s linear infinite}
+.export-btn{font-family:'DM Sans',sans-serif;font-size:11px;padding:7px 14px;background:linear-gradient(135deg,var(--green),#16a34a);border:1px solid rgba(34,197,94,0.4);border-radius:var(--rs);color:#fff;cursor:pointer;transition:all .2s;font-weight:600;display:inline-flex;align-items:center;gap:6px;box-shadow:0 2px 8px rgba(34,197,94,0.2)}
+.export-btn:hover:not(:disabled){transform:translateY(-1px);box-shadow:0 4px 16px rgba(34,197,94,0.3)}
+.export-btn:disabled{opacity:.5;cursor:not-allowed;background:var(--bg-input);color:var(--tx-3);border-color:var(--border);box-shadow:none}
+.export-btn svg{width:13px;height:13px}
+.logout-btn{font-family:'DM Sans',sans-serif;font-size:11px;padding:7px 14px;background:transparent;border:1px solid var(--border);border-radius:var(--rs);color:var(--tx-3);cursor:pointer;transition:all .2s}
+.logout-btn:hover{border-color:var(--red);color:var(--red)}
+
+.main{padding:28px 40px;max-width:1480px;margin:0 auto}
+
+/* Loading */
+.loading-overlay{display:none;position:fixed;inset:0;z-index:200;background:rgba(6,9,15,0.85);backdrop-filter:blur(8px);align-items:center;justify-content:center;flex-direction:column;gap:20px}
+.loading-overlay.active{display:flex}
+.loader{width:40px;height:40px;border:3px solid var(--border);border-top-color:var(--purple);border-radius:50%;animation:spin .7s linear infinite}
+.loading-text{font-size:13px;color:var(--tx-2)}
+
+/* Section */
+.section{margin-bottom:28px;animation:fadeUp .6s ease both}
+.section-hdr{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+.section-num{width:28px;height:28px;border-radius:50%;background:var(--purple-g);border:1px solid rgba(168,85,247,0.35);color:var(--purple);display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;flex-shrink:0}
+.section-title{font-size:13px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--tx-2)}
+
+/* Table */
+.tw{background:var(--bg-2);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;box-shadow:0 4px 32px rgba(0,0,0,0.4)}
+.ts{overflow-x:auto}
+table{width:100%;border-collapse:collapse;min-width:640px}
+thead th{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.8px;color:var(--amber);padding:14px 20px;text-align:left;background:var(--bg-1);border-bottom:1px solid var(--border);white-space:nowrap}
+thead th.num{text-align:right}
+tbody td{padding:14px 20px;font-size:13px;border-bottom:1px solid rgba(34,45,66,0.4);vertical-align:middle}
+tbody td.num{text-align:right;font-family:'JetBrains Mono',monospace;font-weight:600}
+tbody tr{transition:background .15s}
+tbody tr:hover{background:var(--bg-hover)}
+tbody tr:last-child td{border-bottom:none}
+tbody tr.total-row td{background:rgba(168,85,247,0.05);font-weight:700;color:var(--tx-1);border-top:1px solid var(--border)}
+tbody tr.total-row td.num{color:var(--tx-1)}
+
+.cat-dot{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:10px;vertical-align:middle}
+.cat-dot.c-adhoc{background:var(--pink)}
+.cat-dot.c-alm{background:var(--blue)}
+.cat-dot.c-teamb{background:var(--orange)}
+.cat-dot.c-regression{background:var(--green)}
+.cat-name{color:var(--cyan);font-weight:500;cursor:pointer}
+.cat-name:hover{text-decoration:underline}
+.num-red{color:var(--red)}
+.num-amber{color:var(--amber)}
+.num-green{color:var(--green)}
+
+.over-badge{display:inline-block;padding:5px 14px;border-radius:12px;font-family:'JetBrains Mono',monospace;font-weight:700;font-size:13px}
+.over-badge.neg{background:var(--green-g);color:var(--green);border:1px solid rgba(34,197,94,0.25)}
+.over-badge.low{background:var(--amber-g);color:var(--amber);border:1px solid rgba(245,158,11,0.25)}
+.over-badge.high{background:var(--red-g);color:var(--red);border:1px solid rgba(239,68,68,0.25)}
+
+.member-cell{color:var(--cyan);font-weight:500}
+.member-unique{color:var(--tx-3);font-weight:400;font-size:11px;font-family:'JetBrains Mono',monospace}
+.activity-pill{display:inline-flex;align-items:center;padding:3px 10px;border-radius:4px;font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;letter-spacing:.5px;background:var(--purple-g);color:var(--purple);border:1px solid rgba(168,85,247,0.25)}
+.days-off-cell{cursor:help}
+.days-off-cell.zero{color:var(--tx-3)}
+
+.empty-state{text-align:center;padding:48px 20px;color:var(--tx-3);font-size:13px}
+.empty-icon{font-size:32px;margin-bottom:12px;opacity:.5}
+
+.warn-banner{background:var(--amber-g);border:1px solid rgba(245,158,11,0.25);border-radius:var(--rs);padding:12px 16px;margin-bottom:20px;font-size:12.5px;color:var(--amber);display:flex;gap:10px;align-items:flex-start}
+.warn-banner strong{color:var(--tx-1);font-weight:600}
+.warn-banner .w-icon{font-size:16px;line-height:1}
+
+/* Violation cards */
+.viol-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+@media(max-width:1100px){.viol-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:600px){.viol-grid{grid-template-columns:1fr}}
+.scard{background:var(--bg-2);border:1px solid var(--border);border-radius:var(--r);padding:20px 22px;position:relative;overflow:hidden;transition:border-color .2s,transform .15s;animation:fadeUp .5s ease both;cursor:pointer}
+.scard:hover{border-color:var(--border-hi);transform:translateY(-2px);box-shadow:0 8px 32px rgba(0,0,0,0.3)}
+.scard::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:var(--r) var(--r) 0 0}
+.scard.c-purple::before{background:var(--purple)}
+.scard.c-red::before{background:var(--red)}
+.scard.c-amber::before{background:var(--amber)}
+.scard.c-cyan::before{background:var(--cyan)}
+.scard-label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.7px;color:var(--tx-3);margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.scard-val{font-family:'JetBrains Mono',monospace;font-size:28px;font-weight:700;letter-spacing:-1px;line-height:1;text-decoration:underline;text-decoration-style:dotted;text-underline-offset:4px;text-decoration-thickness:1px}
+.scard.c-purple .scard-val{color:var(--purple)}
+.scard.c-red .scard-val{color:var(--red)}
+.scard.c-amber .scard-val{color:var(--amber)}
+.scard.c-cyan .scard-val{color:var(--cyan)}
+.scard-sub{margin-top:6px;font-size:11px;color:var(--tx-2);line-height:1.4}
+.scard.zero-viol{border-color:rgba(34,197,94,0.25)}
+.scard.zero-viol .scard-val{color:var(--green)!important;text-decoration:none}
+
+/* Clickable row */
+tbody tr.clickable{cursor:pointer}
+tbody tr.clickable:hover{background:var(--bg-hover)}
+tbody tr.clickable:hover td:first-child{color:var(--purple)}
+.click-hint{font-size:10px;color:var(--tx-3);font-family:'JetBrains Mono',monospace;margin-left:10px;font-weight:400;text-transform:none;letter-spacing:0}
+
+/* Modal */
+.modal-overlay{display:none;position:fixed;inset:0;z-index:500;background:rgba(6,9,15,0.8);backdrop-filter:blur(6px);align-items:center;justify-content:center}
+.modal-overlay.active{display:flex}
+.modal{background:var(--bg-2);border:1px solid var(--border);border-radius:var(--rl);width:1200px;max-width:94vw;max-height:85vh;display:flex;flex-direction:column;box-shadow:0 16px 64px rgba(0,0,0,0.6);animation:scaleIn .25s cubic-bezier(.16,1,.3,1)}
+.modal-head{padding:20px 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.modal-head h3{font-size:15px;font-weight:700;display:flex;align-items:center;gap:10px}
+.modal-head .m-sub{font-size:11px;color:var(--tx-3);font-weight:400;font-family:'JetBrains Mono',monospace}
+.modal-close{width:30px;height:30px;background:var(--bg-input);border:1px solid var(--border);border-radius:var(--rs);color:var(--tx-2);cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;transition:all .15s}
+.modal-close:hover{border-color:var(--red);color:var(--red)}
+.modal-body{overflow-y:auto;padding:0;flex:1}
+.modal-body table{min-width:auto}
+.modal-body thead th{position:sticky;top:0;z-index:1}
+.modal-body tbody tr.unassigned-row td{background:rgba(239,68,68,0.03);font-style:italic;color:var(--tx-2)}
+.modal-body .no-cap{color:var(--tx-3)}
+.modal-body .id-cell{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--cyan);font-weight:500;cursor:pointer}
+.modal-body .id-cell:hover{text-decoration:underline}
+.modal-body .title-cell{font-weight:500;color:var(--tx-1);max-width:360px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+/* Debug */
+#debugPanel{display:none;position:fixed;bottom:20px;right:20px;width:420px;max-height:320px;background:var(--bg-1);border:1px solid var(--border);border-radius:var(--rs);padding:12px;overflow-y:auto;font-family:'JetBrains Mono',monospace;font-size:11px;z-index:999;box-shadow:0 8px 32px rgba(0,0,0,0.6)}
+#debugPanel.show{display:block}
+.log-line{padding:3px 0;border-bottom:1px solid rgba(34,45,66,0.3);word-break:break-all}
+.log-info{color:var(--tx-2)}
+.log-ok{color:var(--green)}
+.log-err{color:var(--red)}
+.debug-toggle{position:fixed;bottom:20px;right:20px;width:36px;height:36px;background:var(--bg-input);border:1px solid var(--border);border-radius:var(--rs);color:var(--tx-2);cursor:pointer;z-index:998;font-size:14px;display:flex;align-items:center;justify-content:center}
+.debug-toggle:hover{border-color:var(--purple);color:var(--purple)}
+
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@keyframes scaleIn{from{opacity:0;transform:scale(.96)}to{opacity:1;transform:scale(1)}}
+
+@media(max-width:900px){.main{padding:20px 16px}.header{padding:14px 16px}table{min-width:520px}}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="loginScreen">
+  <div class="login-card">
+    <div class="login-logo">QA</div>
+    <h2>QA Team Capacity</h2>
+    <p class="login-sub">
+      <strong>DPF &mdash; QA / Test</strong><br>
+      Enter your Personal Access Token to load team capacity data.
+    </p>
+    <div class="input-group">
+      <label>Personal Access Token</label>
+      <input type="password" id="patInput" placeholder="Paste your PAT here..." autofocus>
+    </div>
+    <button class="login-btn" id="loginBtn" onclick="handleLogin()">Connect &amp; Load Capacity</button>
+    <div class="login-error" id="loginError"></div>
+  </div>
+</div>
+
+<!-- LOADING -->
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="loader"></div>
+  <div class="loading-text" id="loadingText">Connecting to TFS...</div>
+</div>
+
+<!-- DASHBOARD -->
+<div id="dashboard">
+  <header class="header">
+    <div class="header-left">
+      <div class="logo">QA</div>
+      <h1>Team Member Available Capacity <span>/ CasepointARA</span></h1>
+      <span class="qa-pill">QA / TEST</span>
+    </div>
+    <div class="header-right">
+      <select class="iter-select" id="teamSelect" onchange="onTeamChange()" title="Team">
+        <option value="">Loading teams...</option>
+      </select>
+      <select class="iter-select" id="areaSelect" onchange="onAreaChange()" title="Area Path">
+        <option value="">Loading areas...</option>
+      </select>
+      <select class="iter-select" id="iterSelect" onchange="onIterationChange()" title="Sprint"></select>
+      <button class="export-btn" id="exportBtn" onclick="exportToExcel()" disabled title="Export all data to Excel">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Export
+      </button>
+      <button class="icon-btn" id="refreshBtn" onclick="refreshData()" title="Refresh">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6"/><path d="M2.5 22v-6h6"/><path d="M2.5 11.5a10 10 0 0 1 18.4-4.3L21.5 8"/><path d="M21.5 12.5a10 10 0 0 1-18.4 4.3L2.5 16"/></svg>
+      </button>
+      <button class="logout-btn" onclick="handleLogout()">Disconnect</button>
+    </div>
+  </header>
+
+  <main class="main">
+    <div id="warnBannerHost"></div>
+
+    <!-- Section 1 — System Reserved -->
+    <div class="section">
+      <div class="section-hdr">
+        <div class="section-num">1</div>
+        <div class="section-title">System Reserved (by Category)</div>
+      </div>
+      <div class="tw">
+        <div class="ts">
+          <table>
+            <thead><tr><th>Category</th><th class="num">Hours</th></tr></thead>
+            <tbody id="reservedBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 2 — Team Capacity Summary -->
+    <div class="section">
+      <div class="section-hdr">
+        <div class="section-num">2</div>
+        <div class="section-title">Team Member Available Capacity (QA)</div>
+      </div>
+      <div class="tw">
+        <div class="ts">
+          <table>
+            <thead><tr>
+              <th>Role</th>
+              <th class="num">Team's Capacity</th>
+              <th class="num">Total Planned</th>
+              <th class="num">System Reserved</th>
+              <th class="num">Actual Capacity</th>
+              <th class="num">Actual Planned</th>
+              <th class="num">Over Planned %</th>
+            </tr></thead>
+            <tbody id="summaryBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 3 — Member Breakdown -->
+    <div class="section">
+      <div class="section-hdr">
+        <div class="section-num">3</div>
+        <div class="section-title">Member Capacity Breakdown</div>
+      </div>
+      <div class="tw">
+        <div class="ts">
+          <table>
+            <thead><tr>
+              <th>Team Member</th>
+              <th>Activity</th>
+              <th class="num">Capacity/Day</th>
+              <th class="num">Working Days</th>
+              <th class="num">Total Capacity</th>
+              <th class="num">Days Off</th>
+            </tr></thead>
+            <tbody id="memberBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 4 — Planning Violations -->
+    <div class="section">
+      <div class="section-hdr">
+        <div class="section-num">4</div>
+        <div class="section-title">Planning Violations <span class="click-hint">click any card for details</span></div>
+      </div>
+      <div class="viol-grid">
+        <div class="scard c-purple" onclick="showViolModal('productTagMissing')">
+          <div class="scard-label">&#127991; Missing "Product" Tag</div>
+          <div class="scard-val" id="vProductTag">&mdash;</div>
+          <div class="scard-sub">QA tasks without tag (excl. Bug Retesting / Ticket / ALM)</div>
+        </div>
+        <div class="scard c-red" onclick="showViolModal('disciplineWrong')">
+          <div class="scard-label">&#9888; Discipline Wrong / Missing</div>
+          <div class="scard-val" id="vDiscipline">&mdash;</div>
+          <div class="scard-sub">Tasks assigned to Testers group but Discipline &ne; Test</div>
+        </div>
+        <div class="scard c-amber" onclick="showViolModal('parentsNoDelTag')">
+          <div class="scard-label">&#128230; Missing Deliverable/Non-Deliverable Tag</div>
+          <div class="scard-val" id="vParentsNoDel">&mdash;</div>
+          <div class="scard-sub">Reqs/CHRs with QA tasks (excl. ALM / Ticket Support titles)</div>
+        </div>
+        <div class="scard c-cyan" onclick="showViolModal('deliverableNoWeek')">
+          <div class="scard-label">&#128197; Missing Week 1 / Week 2 Tag</div>
+          <div class="scard-val" id="vDeliverableNoWeek">&mdash;</div>
+          <div class="scard-sub">Deliverable Reqs/CHRs in iteration (excl. Regression/ALM/Team B)</div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- Member Breakdown Modal -->
+<div class="modal-overlay" id="memberBdModal" onclick="if(event.target===this)closeMemberBdModal()">
+  <div class="modal">
+    <div class="modal-head">
+      <h3>&#128101; Member-wise Capacity Breakdown <span class="m-sub" id="memberBdSub"></span></h3>
+      <button class="modal-close" onclick="closeMemberBdModal()">&times;</button>
+    </div>
+    <div class="modal-body">
+      <table>
+        <thead><tr>
+          <th>Member</th>
+          <th class="num">Team's Capacity</th>
+          <th class="num">Total Planned</th>
+          <th class="num">System Reserved</th>
+          <th class="num">Actual Capacity</th>
+          <th class="num">Actual Planned</th>
+          <th class="num">Over Planned %</th>
+        </tr></thead>
+        <tbody id="memberBdBody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Violation Modal (generic) -->
+<div class="modal-overlay" id="violModal" onclick="if(event.target===this)closeViolModal()">
+  <div class="modal">
+    <div class="modal-head">
+      <h3 id="violModalTitle">Violations</h3>
+      <button class="modal-close" onclick="closeViolModal()">&times;</button>
+    </div>
+    <div class="modal-body">
+      <table><thead id="violModalHead"></thead><tbody id="violModalBody"></tbody></table>
+    </div>
+  </div>
+</div>
+
+<!-- Debug -->
+<div id="debugPanel"></div>
+<button class="debug-toggle" onclick="document.getElementById('debugPanel').classList.toggle('show')">&#9881;</button>
+
+<script>
+// ═══════════ CONFIG ═══════════
+const CFG = {
+  base: 'https://tfs.casepoint.in/tfs/Casepoint',
+  project: 'CasepointARA',
+  apiVer: '2.0',
+};
+
+// Categories to roll up as System Reserved. Tag match is case-insensitive exact match on
+// one of the task's tags. Order here determines display order.
+const RESERVED_CATEGORIES = [
+  { key: 'adhoc',       name: 'Adhoc QA Reserve', tag: 'Adhoc QA Reserve', dotCls: 'c-adhoc' },
+  { key: 'alm',         name: 'ALM',              tag: 'ALM',              dotCls: 'c-alm' },
+  { key: 'teamb',       name: 'Team B Support',   tag: 'Team B Support',   dotCls: 'c-teamb' },
+  { key: 'regression',  name: 'Regression',       tag: 'Regression',       dotCls: 'c-regression' },
+];
+
+let PAT = '';
+let discoveredTeams = [];   // [{id, name}]
+let iterationsByTeam = {};  // teamId -> [{id, name, path, startDate, finishDate}]
+let warnings = [];
+let LAST_RENDER = null;     // Stash of last computed render data — used by the member breakdown modal
+
+// ═══════════ TFS API ═══════════
+function authHdr() { return 'Basic ' + btoa(':' + PAT); }
+
+async function apiRaw(url) {
+  dbg(`GET ${url.replace(CFG.base, '')}`, 'info');
+  const r = await fetch(url, { headers: { 'Authorization': authHdr(), 'Content-Type': 'application/json' } });
+  if (!r.ok) {
+    const txt = await r.text();
+    dbg(`ERROR ${r.status}: ${txt.substring(0, 300)}`, 'err');
+    throw new Error(`HTTP ${r.status}`);
+  }
+  return r.json();
+}
+async function api(endpoint, method, body) {
+  const url = `${CFG.base}/${CFG.project}/_apis/${endpoint}`;
+  const opts = { method: method || 'GET', headers: { 'Authorization': authHdr(), 'Content-Type': 'application/json' } };
+  if (body) opts.body = JSON.stringify(body);
+  const r = await fetch(url, opts);
+  if (!r.ok) {
+    const txt = await r.text();
+    dbg(`ERROR ${r.status}: ${txt.substring(0, 300)}`, 'err');
+    throw new Error(`HTTP ${r.status}`);
+  }
+  return r.json();
+}
+async function wiql(query) { return api(`wit/wiql?api-version=${CFG.apiVer}`, 'POST', { query }); }
+
+// ═══════════ DISCOVER ═══════════
+async function discoverTeams() {
+  try {
+    const url = `${CFG.base}/_apis/projects/${CFG.project}/teams?api-version=${CFG.apiVer}`;
+    const data = await apiRaw(url);
+    discoveredTeams = (data.value || []).map(t => ({ id: t.id, name: t.name })).sort((a, b) => a.name.localeCompare(b.name));
+    const sel = document.getElementById('teamSelect');
+    sel.innerHTML = '';
+    discoveredTeams.forEach(t => {
+      const o = document.createElement('option');
+      o.value = t.id; o.textContent = t.name;
+      if (/distributed\s*processing\s*framework/i.test(t.name)) o.selected = true;
+      sel.appendChild(o);
+    });
+    dbg(`Found ${discoveredTeams.length} teams`, 'ok');
+  } catch (e) {
+    dbg('Team discovery failed: ' + e.message, 'err');
+    warnings.push('Could not list teams — using default team name.');
+    const sel = document.getElementById('teamSelect');
+    sel.innerHTML = '<option value="Distributed Processing Framework">Distributed Processing Framework</option>';
+  }
+}
+
+async function discoverAreas() {
+  try {
+    const data = await api(`wit/classificationnodes/areas?$depth=10&api-version=${CFG.apiVer}`);
+    const sel = document.getElementById('areaSelect');
+    sel.innerHTML = '';
+    const areas = [];
+    function walk(node, prefix) {
+      const path = prefix ? prefix + '\\' + node.name : node.name;
+      areas.push(path);
+      if (node.children) node.children.forEach(c => walk(c, path));
+    }
+    walk(data, '');
+    areas.sort();
+    const defaultArea = 'CasepointARA\\Distributed Processing Framework';
+    areas.forEach(a => {
+      const o = document.createElement('option');
+      o.value = a; o.textContent = a;
+      if (a === defaultArea) o.selected = true;
+      sel.appendChild(o);
+    });
+    if (!areas.includes(defaultArea) && areas.length) sel.children[0].selected = true;
+    dbg(`Found ${areas.length} area paths`, 'ok');
+  } catch (e) {
+    dbg('Area discovery failed: ' + e.message, 'err');
+    const sel = document.getElementById('areaSelect');
+    sel.innerHTML = '<option value="CasepointARA\\Distributed Processing Framework">CasepointARA\\Distributed Processing Framework</option>';
+  }
+}
+
+async function discoverTeamIterations(teamId) {
+  if (iterationsByTeam[teamId]) return iterationsByTeam[teamId];
+  try {
+    const url = `${CFG.base}/${CFG.project}/${encodeURIComponent(teamId)}/_apis/work/teamsettings/iterations?api-version=${CFG.apiVer}`;
+    const data = await apiRaw(url);
+    const iters = (data.value || []).map(it => ({
+      id: it.id,
+      name: it.name,
+      path: it.path,
+      startDate: it.attributes && it.attributes.startDate,
+      finishDate: it.attributes && it.attributes.finishDate,
+    }));
+    iterationsByTeam[teamId] = iters;
+    dbg(`Team has ${iters.length} iterations`, 'ok');
+    return iters;
+  } catch (e) {
+    dbg('Iteration discovery failed: ' + e.message, 'err');
+    return [];
+  }
+}
+
+async function populateIterationDropdown() {
+  const teamId = document.getElementById('teamSelect').value;
+  if (!teamId) return;
+  const iters = await discoverTeamIterations(teamId);
+  const sel = document.getElementById('iterSelect');
+  sel.innerHTML = '';
+
+  if (!iters.length) {
+    buildHardcodedIterations();
+    warnings.push('Could not load iterations from team — using hardcoded list. Capacity will not load.');
+    return;
+  }
+
+  // Group iterations by their parent path segment (PI-YYYY-QN or PI-YYYY-N)
+  const groups = {};
+  iters.forEach(it => {
+    // Extract group from name: PI-2026-Q1_2 → "2026 Q1"; PI-2026-2_3 → "2026 Q2"
+    const m = it.name.match(/PI-(\d{4})-(Q?)(\d+)_\d+/);
+    const label = m ? `${m[1]} Q${m[3]}` : 'Other';
+    if (!groups[label]) groups[label] = [];
+    groups[label].push(it);
+  });
+  const today = new Date();
+  let defaultId = null;
+  // Find the iteration whose date range contains today
+  iters.forEach(it => {
+    if (!it.startDate || !it.finishDate) return;
+    const s = new Date(it.startDate), e = new Date(it.finishDate);
+    if (today >= s && today <= e) defaultId = it.id;
+  });
+  // Fallback: pick the latest started iteration that isn't in the future
+  if (!defaultId) {
+    const past = iters.filter(it => it.startDate && new Date(it.startDate) <= today)
+                      .sort((a, b) => new Date(b.startDate) - new Date(a.startDate));
+    if (past.length) defaultId = past[0].id;
+  }
+
+  Object.keys(groups).sort().forEach(label => {
+    const g = document.createElement('optgroup');
+    g.label = `── ${label} ──`;
+    groups[label].sort((a, b) => a.name.localeCompare(b.name)).forEach(it => {
+      const o = document.createElement('option');
+      o.value = it.id;
+      o.textContent = it.name + (it.id === defaultId ? ' [CURRENT]' : '');
+      if (it.id === defaultId) o.selected = true;
+      g.appendChild(o);
+    });
+    sel.appendChild(g);
+  });
+}
+
+function buildHardcodedIterations() {
+  // Fallback only — won't have iteration IDs for capacity calls
+  const sel = document.getElementById('iterSelect');
+  sel.innerHTML = '<option value="">No iterations discovered</option>';
+}
+
+// ═══════════ CAPACITY LOAD ═══════════
+async function loadCapacityForIteration(teamId, iterId) {
+  const baseUrl = `${CFG.base}/${CFG.project}/${encodeURIComponent(teamId)}/_apis/work`;
+  const [caps, tdo, ts] = await Promise.all([
+    apiRaw(`${baseUrl}/teamsettings/iterations/${iterId}/capacities?api-version=${CFG.apiVer}`).catch(e => { dbg('Capacity fetch failed: ' + e.message, 'err'); return { value: [] }; }),
+    apiRaw(`${baseUrl}/teamsettings/iterations/${iterId}/teamdaysoff?api-version=${CFG.apiVer}`).catch(e => { dbg('Team days off fetch failed (non-fatal): ' + e.message, 'err'); return { daysOff: [] }; }),
+    apiRaw(`${baseUrl}/teamsettings?api-version=${CFG.apiVer}`).catch(e => { dbg('Team settings fetch failed: ' + e.message, 'err'); return { workingDays: ['monday','tuesday','wednesday','thursday','friday'] }; })
+  ]);
+  return {
+    capacities: caps.value || [],
+    teamDaysOff: tdo.daysOff || [],
+    workingDays: ts.workingDays || ['monday','tuesday','wednesday','thursday','friday'],
+  };
+}
+
+// ═══════════ TASK LOAD ═══════════
+function isQADiscipline(d) {
+  const s = (d || '').toLowerCase();
+  return s.includes('test') || s.includes('qa') || s.includes('quality');
+}
+
+// Load ALL iteration+area tasks (no discipline filter). We derive QA tasks client-side
+// and also use this full set for the "Discipline wrong/missing" violation check.
+async function loadAllIterationTasks(iterationPath, areaPath) {
+  const q = `
+    SELECT [System.Id]
+    FROM WorkItems
+    WHERE [System.TeamProject] = '${CFG.project}'
+      AND [System.AreaPath] UNDER '${areaPath}'
+      AND [System.IterationPath] UNDER '${iterationPath}'
+      AND [System.WorkItemType] = 'Task'
+  `;
+  const res = await wiql(q);
+  const ids = (res.workItems || []).map(w => w.id);
+  if (!ids.length) return [];
+
+  const fields = [
+    'System.Id','System.Title','System.State','System.AssignedTo',
+    'System.Tags','Microsoft.VSTS.Common.Discipline',
+    'Microsoft.VSTS.Scheduling.OriginalEstimate',
+    'Microsoft.VSTS.Scheduling.RemainingWork',
+    'Microsoft.VSTS.Scheduling.CompletedWork',
+  ].join(',');
+  const all = [];
+  for (let i = 0; i < ids.length; i += 200) {
+    const batch = ids.slice(i, i + 200).join(',');
+    const d = await api(`wit/workitems?ids=${batch}&fields=${fields}&api-version=${CFG.apiVer}`);
+    all.push(...(d.value || []));
+  }
+  const out = all.map(wi => {
+    const f = wi.fields;
+    const a = parseAssignee(f['System.AssignedTo']);
+    return {
+      id: wi.id,
+      title: f['System.Title'] || '',
+      state: f['System.State'] || '',
+      tags: (f['System.Tags'] || '').split(';').map(t => t.trim()).filter(Boolean),
+      discipline: f['Microsoft.VSTS.Common.Discipline'] || '',
+      estimated: Number(f['Microsoft.VSTS.Scheduling.OriginalEstimate']) || 0,
+      assigneeDisplay: a.display,
+      assigneeUnique: a.unique,
+    };
+  });
+  dbg(`All iteration tasks: ${out.length}`, 'ok');
+  return out;
+}
+
+// Derived: QA-only subset
+function filterQATasks(allTasks) {
+  const out = allTasks.filter(t => isQADiscipline(t.discipline));
+  dbg(`QA tasks (discipline match): ${out.length}`, 'info');
+  return out;
+}
+
+// Use WIQL "IN GROUP" operator — TFS resolves group membership server-side so we don't
+// have to enumerate identities ourselves. Returns just task IDs.
+async function loadTesterTaskIds(iterationPath, areaPath) {
+  const q = `
+    SELECT [System.Id]
+    FROM WorkItems
+    WHERE [System.TeamProject] = '${CFG.project}'
+      AND [System.AreaPath] UNDER '${areaPath}'
+      AND [System.IterationPath] UNDER '${iterationPath}'
+      AND [System.WorkItemType] = 'Task'
+      AND [System.AssignedTo] IN GROUP '[${CFG.project}]\\Testers'
+  `;
+  const res = await wiql(q);
+  const ids = (res.workItems || []).map(w => w.id);
+  dbg(`Tasks assigned to [${CFG.project}]\\Testers: ${ids.length}`, 'ok');
+  return ids;
+}
+
+// Load all Reqs/CHRs in iteration+area with their tags and title
+async function loadParentsInIteration(iterationPath, areaPath) {
+  const q = `
+    SELECT [System.Id]
+    FROM WorkItems
+    WHERE [System.TeamProject] = '${CFG.project}'
+      AND [System.AreaPath] UNDER '${areaPath}'
+      AND [System.IterationPath] UNDER '${iterationPath}'
+      AND [System.WorkItemType] IN ('Requirement','Change Request')
+  `;
+  const res = await wiql(q);
+  const ids = (res.workItems || []).map(w => w.id);
+  if (!ids.length) return [];
+  const fields = ['System.Id','System.Title','System.State','System.AssignedTo','System.Tags','System.WorkItemType'].join(',');
+  const all = [];
+  for (let i = 0; i < ids.length; i += 200) {
+    const batch = ids.slice(i, i + 200).join(',');
+    const d = await api(`wit/workitems?ids=${batch}&fields=${fields}&api-version=${CFG.apiVer}`);
+    all.push(...(d.value || []));
+  }
+  return all.map(wi => {
+    const f = wi.fields;
+    return {
+      id: wi.id,
+      title: f['System.Title'] || '',
+      state: f['System.State'] || '',
+      assigneeDisplay: parseAssignee(f['System.AssignedTo']).display,
+      tags: (f['System.Tags'] || '').split(';').map(t => t.trim()).filter(Boolean),
+      wiType: f['System.WorkItemType'] || '',
+    };
+  });
+}
+
+// Tree query: Parent (Req/CHR) → Task relationships in this iteration+area
+async function loadParentChildRelations(iterationPath, areaPath) {
+  const treeQuery = `
+    SELECT [System.Id]
+    FROM WorkItemLinks
+    WHERE ([Source].[System.TeamProject] = '${CFG.project}'
+      AND [Source].[System.AreaPath] UNDER '${areaPath}'
+      AND [Source].[System.IterationPath] UNDER '${iterationPath}'
+      AND [Source].[System.WorkItemType] IN ('Requirement','Change Request'))
+      AND ([System.Links.LinkType] = 'System.LinkTypes.Hierarchy-Forward')
+      AND ([Target].[System.WorkItemType] = 'Task')
+    MODE (MustContain)
+  `;
+  try {
+    const res = await wiql(treeQuery);
+    const map = {};
+    (res.workItemRelations || []).forEach(rel => {
+      if (rel.source && rel.target) {
+        if (!map[rel.source.id]) map[rel.source.id] = [];
+        map[rel.source.id].push(rel.target.id);
+      }
+    });
+    return map;
+  } catch (e) {
+    dbg('Tree query failed: ' + e.message, 'err');
+    return {};
+  }
+}
+
+function parseAssignee(a) {
+  // TFS AssignedTo may be a string "Jane Doe <MT\\jdoe>" or an object { displayName, uniqueName }
+  if (!a) return { display: '', unique: '' };
+  if (typeof a === 'string') {
+    const m = a.match(/^(.+?)\s*<(.+?)>\s*$/);
+    if (m) return { display: m[1].trim(), unique: m[2].trim() };
+    return { display: a.trim(), unique: '' };
+  }
+  return { display: (a.displayName || '').trim(), unique: (a.uniqueName || '').trim() };
+}
+
+// ═══════════ WORKING DAYS COMPUTATION ═══════════
+function dateToUTC(d) {
+  // Normalize any date input to a UTC midnight Date for comparison
+  const dt = new Date(d);
+  return new Date(Date.UTC(dt.getUTCFullYear(), dt.getUTCMonth(), dt.getUTCDate()));
+}
+function isDateInRange(date, range) {
+  if (!range || !range.start || !range.end) return false;
+  const s = dateToUTC(range.start), e = dateToUTC(range.end), d = dateToUTC(date);
+  return d >= s && d <= e;
+}
+function computeWorkingDays(iterStart, iterEnd, workingDayNames, memberDaysOff, teamDaysOff) {
+  if (!iterStart || !iterEnd) return 0;
+  const weekdayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+  const workingSet = new Set((workingDayNames || []).map(d => d.toLowerCase()));
+  const start = dateToUTC(iterStart), end = dateToUTC(iterEnd);
+  let count = 0;
+  const cur = new Date(start);
+  while (cur <= end) {
+    const wd = weekdayNames[cur.getUTCDay()];
+    if (workingSet.has(wd)) {
+      let isOff = false;
+      for (const r of (memberDaysOff || [])) { if (isDateInRange(cur, r)) { isOff = true; break; } }
+      if (!isOff) for (const r of (teamDaysOff || [])) { if (isDateInRange(cur, r)) { isOff = true; break; } }
+      if (!isOff) count++;
+    }
+    cur.setUTCDate(cur.getUTCDate() + 1);
+  }
+  return count;
+}
+
+// ═══════════ MAIN LOAD ═══════════
+async function loadData() {
+  warnings = [];
+  const teamId = document.getElementById('teamSelect').value;
+  const iterId = document.getElementById('iterSelect').value;
+  const areaPath = document.getElementById('areaSelect').value;
+
+  if (!teamId || !iterId) {
+    showLoad('Select team and iteration first...');
+    setTimeout(hideLoad, 800);
+    return;
+  }
+  showLoad('Loading capacity data...');
+
+  // Find iteration path from its ID
+  const iters = iterationsByTeam[teamId] || [];
+  const iter = iters.find(i => i.id === iterId);
+  if (!iter) { hideLoad(); alert('Iteration not found'); return; }
+
+  const cap = await loadCapacityForIteration(teamId, iterId);
+  showLoad('Loading tasks, parents & group membership...');
+
+  const [allTasks, testerIds, parents, relations] = await Promise.all([
+    loadAllIterationTasks(iter.path, areaPath),
+    loadTesterTaskIds(iter.path, areaPath).catch(e => {
+      dbg('Testers group lookup failed: ' + e.message, 'err');
+      warnings.push('Could not resolve [' + CFG.project + ']\\Testers group — Discipline check skipped.');
+      return null; // null signals failure so we skip the discipline check
+    }),
+    loadParentsInIteration(iter.path, areaPath),
+    loadParentChildRelations(iter.path, areaPath),
+  ]);
+
+  const qaTasks = filterQATasks(allTasks);
+
+  render({ iter, cap, allTasks, qaTasks, testerIds, parents, relations });
+  hideLoad();
+}
+
+// ═══════════ RENDER ═══════════
+function render({ iter, cap, allTasks, qaTasks, testerIds, parents, relations }) {
+  const tasks = qaTasks; // keep local alias — Sections 1-3 use QA tasks only
+  // Build member rows (QA members only — members whose activities include Test/QA)
+  const members = cap.capacities.map(c => {
+    const qaActs = (c.activities || []).filter(a => {
+      const n = (a.name || '').toLowerCase();
+      return n.includes('test') || n.includes('qa');
+    });
+    const qaPerDay = qaActs.reduce((s, a) => s + (Number(a.capacityPerDay) || 0), 0);
+    const workingDays = computeWorkingDays(iter.startDate, iter.finishDate, cap.workingDays, c.daysOff || [], cap.teamDaysOff || []);
+    const totalCapacity = qaPerDay * workingDays;
+    return {
+      displayName: (c.teamMember && c.teamMember.displayName) || '',
+      uniqueName: (c.teamMember && c.teamMember.uniqueName) || '',
+      capacityPerDay: qaPerDay,
+      activityName: qaActs.map(a => a.name).join(' + ') || 'Test',
+      workingDays,
+      totalCapacity,
+      daysOffRanges: (c.daysOff || []).length,
+      daysOffDetail: (c.daysOff || []).map(r => `${r.start ? r.start.substring(0,10) : '?'} → ${r.end ? r.end.substring(0,10) : '?'}`).join('\n'),
+      isQA: qaPerDay > 0,
+    };
+  }).filter(m => m.isQA);
+
+  const teamCapacity = members.reduce((s, m) => s + m.totalCapacity, 0);
+
+  // System Reserved by tag
+  const reserved = RESERVED_CATEGORIES.map(cat => {
+    const wanted = cat.tag.toLowerCase();
+    const matched = tasks.filter(t => t.tags.some(tg => tg.toLowerCase() === wanted));
+    const hours = matched.reduce((s, t) => s + t.estimated, 0);
+    return { ...cat, hours, count: matched.length };
+  });
+  const reservedTotal = reserved.reduce((s, r) => s + r.hours, 0);
+
+  // Total Planned = sum of all QA task estimates (incl. reserved)
+  const totalPlanned = tasks.reduce((s, t) => s + t.estimated, 0);
+  const actualCapacity = teamCapacity - reservedTotal;
+  const actualPlanned = totalPlanned - reservedTotal;
+  const overPct = actualCapacity > 0 ? ((actualPlanned - actualCapacity) / actualCapacity * 100) : 0;
+
+  // ── Render Section 1: Reserved ──
+  const rBody = document.getElementById('reservedBody');
+  let rHtml = reserved.map(r => `
+    <tr>
+      <td><span class="cat-dot ${r.dotCls}"></span><span class="cat-name">${esc(r.name)}</span></td>
+      <td class="num ${r.hours > 0 ? 'num-red' : ''}">${fmt(r.hours)}h</td>
+    </tr>`).join('');
+  rHtml += `<tr class="total-row">
+    <td><span style="font-family:'JetBrains Mono',monospace;margin-right:6px">&Sigma;</span>Total</td>
+    <td class="num">${fmt(reservedTotal)}h</td>
+  </tr>`;
+  rBody.innerHTML = rHtml;
+
+  // ── Render Section 2: Summary ──
+  const overCls = overPct <= 0 ? 'neg' : overPct < 25 ? 'low' : 'high';
+  const overTxt = (overPct >= 0 ? '' : '') + fmt(overPct) + '%';
+
+  // Stash everything the modal needs so it can recompute without re-fetching
+  LAST_RENDER = { iter, tasks, members, reservedTotal, totalPlanned, teamCapacity, actualCapacity, actualPlanned, overPct };
+
+  document.getElementById('summaryBody').innerHTML = `
+    <tr class="clickable" onclick="showMemberBdModal()" title="Click to see per-member breakdown">
+      <td><strong>QA (Test)</strong><span class="click-hint">click for member breakdown &rsaquo;</span></td>
+      <td class="num">${fmt(teamCapacity)}</td>
+      <td class="num">${fmt(totalPlanned)}</td>
+      <td class="num">${fmt(reservedTotal)}</td>
+      <td class="num num-amber">${fmt(actualCapacity)}</td>
+      <td class="num">${fmt(actualPlanned)}</td>
+      <td class="num"><span class="over-badge ${overCls}">${overTxt}</span></td>
+    </tr>`;
+
+  // ── Render Section 3: Members ──
+  const mBody = document.getElementById('memberBody');
+  if (!members.length) {
+    mBody.innerHTML = `<tr><td colspan="6" class="empty-state"><div class="empty-icon">&#128101;</div>No QA team members found for this iteration.<br><span style="font-size:11px;color:var(--tx-3)">Either no Test/QA activity is set in TFS team capacity, or capacity hasn't been configured yet for this sprint.</span></td></tr>`;
+  } else {
+    mBody.innerHTML = members.map(m => `
+      <tr>
+        <td><span class="member-cell">${esc(m.displayName)}</span>${m.uniqueName ? ` <span class="member-unique">&lt;${esc(m.uniqueName)}&gt;</span>` : ''}</td>
+        <td><span class="activity-pill">${esc(m.activityName)}</span></td>
+        <td class="num">${fmt(m.capacityPerDay)}h</td>
+        <td class="num">${m.workingDays}</td>
+        <td class="num">${fmt(m.totalCapacity)}h</td>
+        <td class="num days-off-cell ${m.daysOffRanges === 0 ? 'zero' : ''}" title="${m.daysOffDetail ? esc(m.daysOffDetail) : 'No days off'}">${m.daysOffRanges} range(s)</td>
+      </tr>`).join('');
+  }
+
+  // ── Section 4: Planning Violations ──
+  const violations = computeViolations({ allTasks, qaTasks, testerIds, parents, relations });
+  document.getElementById('vProductTag').textContent = violations.productTagMissing.length;
+  document.getElementById('vDiscipline').textContent = testerIds === null ? '—' : violations.disciplineWrong.length;
+  document.getElementById('vParentsNoDel').textContent = violations.parentsNoDelTag.length;
+  document.getElementById('vDeliverableNoWeek').textContent = violations.deliverableNoWeek.length;
+  toggleZero('vProductTag', violations.productTagMissing.length);
+  toggleZero('vDiscipline', testerIds === null ? -1 : violations.disciplineWrong.length);
+  toggleZero('vParentsNoDel', violations.parentsNoDelTag.length);
+  toggleZero('vDeliverableNoWeek', violations.deliverableNoWeek.length);
+  LAST_RENDER.violations = violations;
+
+  renderWarnings();
+  document.getElementById('exportBtn').disabled = false;
+  dbg(`Rendered: ${members.length} QA members, team cap ${fmt(teamCapacity)}h, reserved ${fmt(reservedTotal)}h, planned ${fmt(totalPlanned)}h`, 'ok');
+}
+
+function toggleZero(id, n) {
+  const card = document.getElementById(id).closest('.scard');
+  if (!card) return;
+  card.classList.toggle('zero-viol', n === 0);
+}
+
+// ═══════════ VIOLATION COMPUTATION ═══════════
+function computeViolations({ allTasks, qaTasks, testerIds, parents, relations }) {
+  // 1) Product tag missing — QA/Test tasks without a "product" tag,
+  //    excluding Bug Retesting / Ticket / ALM titles
+  const productTagMissing = qaTasks.filter(t => {
+    const title = (t.title || '').trim().toLowerCase();
+    if (title.startsWith('bug retesting -')) return false;
+    if (title.includes('ticket') || title.includes('alm')) return false;
+    const tags = t.tags.map(x => x.toLowerCase());
+    return !tags.includes('product');
+  });
+
+  // 2) Discipline wrong/missing — tasks assigned to [CasepointARA]\Testers where
+  //    Discipline !== "Test" (empty string or any other value)
+  let disciplineWrong = [];
+  if (testerIds && testerIds.length) {
+    const testerSet = new Set(testerIds);
+    disciplineWrong = allTasks.filter(t => {
+      if (!testerSet.has(t.id)) return false;
+      return (t.discipline || '').trim().toLowerCase() !== 'test';
+    });
+  }
+
+  // 3) + 4) Parent checks scoped to parents that have at least one QA/Test child task this sprint
+  const qaTaskIdSet = new Set(qaTasks.map(t => t.id));
+  const parentsWithQA = new Set();
+  Object.entries(relations || {}).forEach(([pid, childIds]) => {
+    if (childIds.some(cid => qaTaskIdSet.has(cid))) parentsWithQA.add(Number(pid));
+  });
+  const qaParents = parents.filter(p => parentsWithQA.has(p.id));
+
+  // 3) Missing Deliverable/Non-Deliverable tag
+  //    Exclusions:
+  //      - Title contains "ALM" or "Ticket Support"
+  //      - Tags include "Regression", "ALM", "Team B Support", or "Adhoc QA Reserve"
+  const PARENT_DEL_EXCLUDE_TAGS = ['regression', 'alm', 'team b support', 'adhoc qa reserve'];
+  const parentsNoDelTag = qaParents.filter(p => {
+    const title = (p.title || '').toLowerCase();
+    if (title.includes('alm') || title.includes('ticket support')) return false;
+    const tags = p.tags.map(x => x.toLowerCase());
+    if (PARENT_DEL_EXCLUDE_TAGS.some(ex => tags.includes(ex))) return false;
+    const hasDel = tags.includes('deliverable');
+    const hasNonDel = tags.includes('non-deliverable') || tags.includes('non deliverable') || tags.includes('nondeliverable');
+    return !hasDel && !hasNonDel;
+  });
+
+  // 4) Deliverable parents without Week 1/Week 2 — runs against ALL Reqs/CHRs in the
+  //    iteration (no QA-task dependency), excluding tags Regression / ALM / Team B Support
+  const WEEK_EXCLUDE_TAGS = ['regression', 'alm', 'team b support'];
+  const deliverableNoWeek = parents.filter(p => {
+    const tags = p.tags.map(x => x.toLowerCase());
+    if (!tags.includes('deliverable')) return false;
+    if (WEEK_EXCLUDE_TAGS.some(ex => tags.includes(ex))) return false;
+    return !tags.includes('week 1') && !tags.includes('week 2');
+  });
+
+  dbg(`Violations: Product=${productTagMissing.length}, Discipline=${disciplineWrong.length}, ParentsNoDel=${parentsNoDelTag.length}, DelNoWeek=${deliverableNoWeek.length}`, 'info');
+  return { productTagMissing, disciplineWrong, parentsNoDelTag, deliverableNoWeek, qaParents };
+}
+
+function renderWarnings() {
+  const host = document.getElementById('warnBannerHost');
+  if (!warnings.length) { host.innerHTML = ''; return; }
+  host.innerHTML = `<div class="warn-banner"><span class="w-icon">&#9888;</span><div><strong>Notes:</strong> ${warnings.map(esc).join(' · ')}</div></div>`;
+}
+
+// ═══════════ MEMBER BREAKDOWN MODAL ═══════════
+// Matches a task to a capacity member. Unique name match wins; falls back to display name.
+function taskBelongsToMember(task, member) {
+  if (task.assigneeUnique && member.uniqueName && task.assigneeUnique.toLowerCase() === member.uniqueName.toLowerCase()) return true;
+  if (task.assigneeDisplay && member.displayName && task.assigneeDisplay.toLowerCase() === member.displayName.toLowerCase()) return true;
+  return false;
+}
+
+function isReservedTask(task) {
+  const wantedTags = RESERVED_CATEGORIES.map(c => c.tag.toLowerCase());
+  return task.tags.some(tg => wantedTags.includes(tg.toLowerCase()));
+}
+
+function showMemberBdModal() {
+  if (!LAST_RENDER) return;
+  const { iter, tasks, members } = LAST_RENDER;
+
+  document.getElementById('memberBdSub').textContent = `— ${iter.name}`;
+
+  // Per-member rows
+  const rows = members.map(m => {
+    const theirTasks = tasks.filter(t => taskBelongsToMember(t, m));
+    const theirPlanned = theirTasks.reduce((s, t) => s + t.estimated, 0);
+    const theirReserved = theirTasks.filter(isReservedTask).reduce((s, t) => s + t.estimated, 0);
+    const theirCapacity = m.totalCapacity;
+    const theirActualCap = theirCapacity - theirReserved;
+    const theirActualPlanned = theirPlanned - theirReserved;
+    const theirOverPct = theirActualCap > 0 ? ((theirActualPlanned - theirActualCap) / theirActualCap * 100) : (theirActualPlanned > 0 ? 100 : 0);
+    return { m, theirTasks, theirPlanned, theirReserved, theirCapacity, theirActualCap, theirActualPlanned, theirOverPct };
+  });
+
+  // Unassigned QA tasks (fall outside any member)
+  const unassignedTasks = tasks.filter(t => !t.assigneeDisplay && !t.assigneeUnique);
+  const unassignedAssignedToSomeoneElse = tasks.filter(t => (t.assigneeDisplay || t.assigneeUnique) && !members.some(m => taskBelongsToMember(t, m)));
+  const orphanTasks = [...unassignedTasks, ...unassignedAssignedToSomeoneElse];
+  const orphanPlanned = orphanTasks.reduce((s, t) => s + t.estimated, 0);
+  const orphanReserved = orphanTasks.filter(isReservedTask).reduce((s, t) => s + t.estimated, 0);
+
+  let html = rows.map(({ m, theirTasks, theirPlanned, theirReserved, theirCapacity, theirActualCap, theirActualPlanned, theirOverPct }) => {
+    const overCls = theirOverPct <= 0 ? 'neg' : theirOverPct < 25 ? 'low' : 'high';
+    return `<tr>
+      <td>
+        <span class="member-cell">${esc(m.displayName)}</span>
+        ${m.uniqueName ? `<span class="member-unique"> &lt;${esc(m.uniqueName)}&gt;</span>` : ''}
+        <div style="font-size:10px;color:var(--tx-3);font-family:'JetBrains Mono',monospace;margin-top:2px">${theirTasks.length} task${theirTasks.length !== 1 ? 's' : ''}</div>
+      </td>
+      <td class="num">${fmt(theirCapacity)}</td>
+      <td class="num">${fmt(theirPlanned)}</td>
+      <td class="num">${fmt(theirReserved)}</td>
+      <td class="num num-amber">${fmt(theirActualCap)}</td>
+      <td class="num">${fmt(theirActualPlanned)}</td>
+      <td class="num"><span class="over-badge ${overCls}">${fmt(theirOverPct)}%</span></td>
+    </tr>`;
+  }).join('');
+
+  if (orphanTasks.length > 0) {
+    html += `<tr class="unassigned-row">
+      <td>
+        <strong>Unassigned / Non-team</strong>
+        <div style="font-size:10px;color:var(--tx-3);font-family:'JetBrains Mono',monospace;margin-top:2px">${orphanTasks.length} task${orphanTasks.length !== 1 ? 's' : ''}${unassignedAssignedToSomeoneElse.length ? ` · ${unassignedAssignedToSomeoneElse.length} assigned to non-capacity members` : ''}</div>
+      </td>
+      <td class="num no-cap">&mdash;</td>
+      <td class="num">${fmt(orphanPlanned)}</td>
+      <td class="num">${fmt(orphanReserved)}</td>
+      <td class="num no-cap">&mdash;</td>
+      <td class="num">${fmt(orphanPlanned - orphanReserved)}</td>
+      <td class="num no-cap">&mdash;</td>
+    </tr>`;
+  }
+
+  // Footer totals row — should match Section 2 exactly
+  const totalCls = LAST_RENDER.overPct <= 0 ? 'neg' : LAST_RENDER.overPct < 25 ? 'low' : 'high';
+  html += `<tr class="total-row">
+    <td><span style="font-family:'JetBrains Mono',monospace;margin-right:6px">&Sigma;</span>Total</td>
+    <td class="num">${fmt(LAST_RENDER.teamCapacity)}</td>
+    <td class="num">${fmt(LAST_RENDER.totalPlanned)}</td>
+    <td class="num">${fmt(LAST_RENDER.reservedTotal)}</td>
+    <td class="num">${fmt(LAST_RENDER.actualCapacity)}</td>
+    <td class="num">${fmt(LAST_RENDER.actualPlanned)}</td>
+    <td class="num"><span class="over-badge ${totalCls}">${fmt(LAST_RENDER.overPct)}%</span></td>
+  </tr>`;
+
+  document.getElementById('memberBdBody').innerHTML = html;
+  document.getElementById('memberBdModal').classList.add('active');
+}
+
+function closeMemberBdModal() { document.getElementById('memberBdModal').classList.remove('active'); }
+
+// ═══════════ VIOLATION MODALS ═══════════
+const VIOL_CFG = {
+  productTagMissing: {
+    title: '🏷 Tasks Missing "Product" Tag',
+    headers: ['ID', 'Title', 'State', 'Assignee', 'Discipline', 'Current Tags'],
+    render: items => items.map(t => `
+      <tr>
+        <td><span class="id-cell" onclick="openWI(${t.id})">${t.id}</span></td>
+        <td class="title-cell" title="${esc(t.title)}">${esc(t.title)}</td>
+        <td>${esc(t.state)}</td>
+        <td>${t.assigneeDisplay ? esc(t.assigneeDisplay) : '<span style="color:var(--red)">unassigned</span>'}</td>
+        <td>${esc(t.discipline || '—')}</td>
+        <td style="font-family:'JetBrains Mono',monospace;font-size:11px">${esc(t.tags.join('; ') || '—')}</td>
+      </tr>`).join('')
+  },
+  disciplineWrong: {
+    title: '⚠ Tasks with Wrong or Missing Discipline',
+    subtitle: `Assigned to [${CFG.project}]\\Testers · Discipline should be "Test"`,
+    headers: ['ID', 'Title', 'State', 'Assignee', 'Current Discipline', 'Tags'],
+    render: items => items.map(t => {
+      const hint = !t.discipline ? 'empty' : `"${esc(t.discipline)}"`;
+      return `<tr>
+        <td><span class="id-cell" onclick="openWI(${t.id})">${t.id}</span></td>
+        <td class="title-cell" title="${esc(t.title)}">${esc(t.title)}</td>
+        <td>${esc(t.state)}</td>
+        <td>${esc(t.assigneeDisplay)}</td>
+        <td><span style="color:var(--red);font-weight:700">${hint}</span></td>
+        <td style="font-family:'JetBrains Mono',monospace;font-size:11px">${esc(t.tags.join('; ') || '—')}</td>
+      </tr>`;
+    }).join('')
+  },
+  parentsNoDelTag: {
+    title: '📦 Reqs/CHRs Missing Deliverable/Non-Deliverable Tag',
+    subtitle: 'Reqs/CHRs with QA tasks this sprint · excludes titles with ALM/Ticket Support & tags Regression/ALM/Team B Support/Adhoc QA Reserve',
+    headers: ['ID', 'Type', 'Title', 'State', 'Assignee', 'Current Tags'],
+    render: items => items.map(p => `
+      <tr>
+        <td><span class="id-cell" onclick="openWI(${p.id})">${p.id}</span></td>
+        <td>${p.wiType === 'Requirement' ? 'REQ' : 'CHR'}</td>
+        <td class="title-cell" title="${esc(p.title)}">${esc(p.title)}</td>
+        <td>${esc(p.state)}</td>
+        <td>${p.assigneeDisplay ? esc(p.assigneeDisplay) : '<span style="color:var(--red)">unassigned</span>'}</td>
+        <td style="font-family:'JetBrains Mono',monospace;font-size:11px">${esc(p.tags.join('; ') || '—')}</td>
+      </tr>`).join('')
+  },
+  deliverableNoWeek: {
+    title: '📅 Deliverable Reqs/CHRs Missing Week 1 / Week 2 Tag',
+    subtitle: 'All Reqs/CHRs with "Deliverable" tag in iteration · excludes Regression / ALM / Team B Support',
+    headers: ['ID', 'Type', 'Title', 'State', 'Assignee', 'Current Tags'],
+    render: items => items.map(p => `
+      <tr>
+        <td><span class="id-cell" onclick="openWI(${p.id})">${p.id}</span></td>
+        <td>${p.wiType === 'Requirement' ? 'REQ' : 'CHR'}</td>
+        <td class="title-cell" title="${esc(p.title)}">${esc(p.title)}</td>
+        <td>${esc(p.state)}</td>
+        <td>${p.assigneeDisplay ? esc(p.assigneeDisplay) : '<span style="color:var(--red)">unassigned</span>'}</td>
+        <td style="font-family:'JetBrains Mono',monospace;font-size:11px">${esc(p.tags.join('; ') || '—')}</td>
+      </tr>`).join('')
+  }
+};
+
+function showViolModal(key) {
+  if (!LAST_RENDER || !LAST_RENDER.violations) return;
+  const cfg = VIOL_CFG[key];
+  const items = LAST_RENDER.violations[key] || [];
+  const subtitle = cfg.subtitle ? `<span class="m-sub">${esc(cfg.subtitle)}</span>` : '';
+  document.getElementById('violModalTitle').innerHTML =
+    `${cfg.title} <span style="color:var(--tx-3);font-weight:400;font-size:13px;margin-left:6px">(${items.length})</span> ${subtitle}`;
+  document.getElementById('violModalHead').innerHTML = `<tr>${cfg.headers.map(h => `<th>${h}</th>`).join('')}</tr>`;
+  if (!items.length) {
+    document.getElementById('violModalBody').innerHTML =
+      `<tr><td colspan="${cfg.headers.length}" class="empty-state"><div class="empty-icon">&#9989;</div>No violations — everything is clean!</td></tr>`;
+  } else {
+    document.getElementById('violModalBody').innerHTML = cfg.render(items);
+  }
+  document.getElementById('violModal').classList.add('active');
+}
+function closeViolModal() { document.getElementById('violModal').classList.remove('active'); }
+
+function openWI(id) { window.open(`${CFG.base}/${CFG.project}/_workitems/edit/${id}`, '_blank'); }
+
+// ═══════════ EXCEL EXPORT ═══════════
+function exportToExcel() {
+  if (!LAST_RENDER) { alert('Nothing to export yet — load a sprint first.'); return; }
+  if (typeof XLSX === 'undefined') { alert('Export library failed to load. Check your network.'); return; }
+
+  const btn = document.getElementById('exportBtn');
+  const origHtml = btn.innerHTML;
+  btn.disabled = true;
+  btn.innerHTML = '<span style="font-family:\'JetBrains Mono\',monospace">Exporting...</span>';
+
+  try {
+    const { iter, tasks, members } = LAST_RENDER;
+    const iterName = iter.name || 'unknown';
+    const stamp = new Date();
+
+    const wb = XLSX.utils.book_new();
+
+    // Single sheet: Member capacity breakdown (everything from Section 3 + the per-member
+    // drilldown columns that appear in the click-through modal)
+    const headers = [
+      'Member', 'Unique Name', 'Activity', 'Capacity/Day (h)', 'Working Days', 'Total Capacity (h)',
+      'Days Off Ranges', 'Days Off Detail',
+      'Their Planned (h)', 'Their Reserved (h)', 'Their Actual Capacity (h)', 'Their Actual Planned (h)', 'Their Over Planned %'
+    ];
+    const rows = [headers];
+    members.forEach(m => {
+      const theirTasks = tasks.filter(t => taskBelongsToMember(t, m));
+      const theirPlanned = theirTasks.reduce((s, t) => s + t.estimated, 0);
+      const theirReserved = theirTasks.filter(isReservedTask).reduce((s, t) => s + t.estimated, 0);
+      const theirActualCap = m.totalCapacity - theirReserved;
+      const theirActualPlanned = theirPlanned - theirReserved;
+      const theirOverPct = theirActualCap > 0 ? ((theirActualPlanned - theirActualCap) / theirActualCap * 100) : (theirActualPlanned > 0 ? 100 : 0);
+      rows.push([
+        m.displayName, m.uniqueName, m.activityName, round(m.capacityPerDay), m.workingDays, round(m.totalCapacity),
+        m.daysOffRanges, m.daysOffDetail || '',
+        round(theirPlanned), round(theirReserved), round(theirActualCap), round(theirActualPlanned), round(theirOverPct)
+      ]);
+    });
+
+    const ws = XLSX.utils.aoa_to_sheet(rows);
+    ws['!cols'] = [
+      { wch: 22 }, { wch: 20 }, { wch: 14 }, { wch: 14 }, { wch: 14 }, { wch: 18 },
+      { wch: 16 }, { wch: 32 },
+      { wch: 16 }, { wch: 18 }, { wch: 20 }, { wch: 20 }, { wch: 18 }
+    ];
+    XLSX.utils.book_append_sheet(wb, ws, 'Members');
+
+    const safeIter = iterName.replace(/[^a-zA-Z0-9_-]/g, '_');
+    const ts = `${stamp.getFullYear()}${pad2(stamp.getMonth()+1)}${pad2(stamp.getDate())}_${pad2(stamp.getHours())}${pad2(stamp.getMinutes())}`;
+    const filename = `QA_Members_${safeIter}_${ts}.xlsx`;
+    XLSX.writeFile(wb, filename);
+    dbg(`Exported ${members.length} members to ${filename}`, 'ok');
+  } catch (e) {
+    console.error(e);
+    alert('Export failed: ' + e.message);
+    dbg('Export error: ' + e.message, 'err');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = origHtml;
+  }
+}
+
+function round(n) { return Math.round((n || 0) * 100) / 100; }
+function pad2(n) { return String(n).padStart(2, '0'); }
+
+// ═══════════ HELPERS ═══════════
+function esc(s) { const d = document.createElement('div'); d.textContent = s == null ? '' : String(s); return d.innerHTML; }
+function fmt(n) { return (Math.round((n || 0) * 100) / 100).toFixed(2); }
+function dbg(msg, type) {
+  const p = document.getElementById('debugPanel');
+  const cls = type === 'err' ? 'log-err' : type === 'ok' ? 'log-ok' : 'log-info';
+  p.innerHTML += `<div class="log-line ${cls}">[${new Date().toLocaleTimeString()}] ${esc(msg)}</div>`;
+  p.scrollTop = p.scrollHeight;
+  console.log(msg);
+}
+function showLoad(m) { document.getElementById('loadingText').textContent = m || 'Loading...'; document.getElementById('loadingOverlay').classList.add('active'); }
+function hideLoad() { document.getElementById('loadingOverlay').classList.remove('active'); }
+
+// ═══════════ EVENTS ═══════════
+async function onTeamChange() {
+  await populateIterationDropdown();
+  refreshData();
+}
+function onAreaChange() { refreshData(); }
+function onIterationChange() { refreshData(); }
+
+async function refreshData() {
+  const btn = document.getElementById('refreshBtn');
+  btn.classList.add('spinning');
+  try { await loadData(); }
+  catch (e) { alert('Error: ' + e.message); dbg(e.message, 'err'); }
+  finally { btn.classList.remove('spinning'); }
+}
+
+// ═══════════ AUTH ═══════════
+async function handleLogin() {
+  const inp = document.getElementById('patInput');
+  const err = document.getElementById('loginError');
+  const btn = document.getElementById('loginBtn');
+  PAT = inp.value.trim();
+  if (!PAT) { err.textContent = 'Please enter your PAT.'; err.style.display = 'block'; return; }
+
+  btn.disabled = true; btn.textContent = 'Connecting...'; err.style.display = 'none';
+
+  try {
+    dbg('Testing connection...', 'info');
+    await wiql(`SELECT [System.Id] FROM WorkItems WHERE [System.TeamProject] = '${CFG.project}' AND [System.Id] > 0`);
+    dbg('Connection OK', 'ok');
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('dashboard').style.display = 'block';
+    await Promise.all([discoverTeams(), discoverAreas()]);
+    await populateIterationDropdown();
+    await loadData();
+  } catch (e) {
+    PAT = '';
+    err.textContent = 'Connection failed. Check your PAT and network access. ' + e.message;
+    err.style.display = 'block';
+    btn.disabled = false; btn.textContent = 'Connect & Load Capacity';
+  }
+}
+
+function handleLogout() {
+  PAT = '';
+  document.getElementById('dashboard').style.display = 'none';
+  document.getElementById('loginScreen').style.display = 'flex';
+  document.getElementById('patInput').value = '';
+  document.getElementById('loginBtn').disabled = false;
+  document.getElementById('loginBtn').textContent = 'Connect & Load Capacity';
+  document.getElementById('exportBtn').disabled = true;
+  iterationsByTeam = {};
+  warnings = [];
+  LAST_RENDER = null;
+}
+
+document.getElementById('patInput').addEventListener('keydown', e => { if (e.key === 'Enter') handleLogin(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeMemberBdModal(); closeViolModal(); } });
+</script>
+</body>
+</html>
