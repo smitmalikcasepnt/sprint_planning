@@ -185,16 +185,13 @@ tbody tr.clickable:hover td:first-child{color:var(--purple)}
 @media(max-width:900px){.main{padding:20px 16px}.header{padding:14px 16px}table{min-width:520px}}
 </style>
 <style id="violet-glass-reskin">
-/* ============================================================
-   VIOLET / GLASS RESKIN — sprint_planning (presentation only)
-   Already purple-accented; unify hue to violet + glass + backdrop.
-   (xlsx.js CDN is a FUNCTIONAL dependency and is left untouched.)
-   ============================================================ */
+/* ---- sprint_planning tokens (violet/glass; unify purple) ---- */
 :root{
   --bg-0:#0e0a1e; --bg-1:#15102b; --bg-2:#1b1436; --bg-hover:#241a44; --bg-input:#140d28;
   --border:#2b2350; --border-hi:#3d3370;
   --tx-1:#f4f1ff; --tx-2:#a99fce; --tx-3:#6c6392;
   --purple:#8b5cf6; --purple-g:rgba(124,58,237,.16);
+  --r:13px; --rs:9px; --rl:18px;
 }
 body{
   background:
@@ -213,7 +210,105 @@ body::before{
 .login-card,.modal,.card,.panel,.section,.box,.scard{ backdrop-filter:blur(12px) saturate(140%); -webkit-backdrop-filter:blur(12px) saturate(140%); }
 .login-logo,.logo{ background:linear-gradient(135deg,#7c3aed,#2563eb) !important; box-shadow:0 0 24px rgba(124,58,237,.35) !important; }
 .login-btn{ background:linear-gradient(135deg,#7c3aed,#2563eb) !important; box-shadow:0 4px 16px rgba(124,58,237,.30) !important; }
-.login-btn:hover{ box-shadow:0 6px 24px rgba(124,58,237,.42) !important; }
+/* ============================================================
+   VIOLET / GLASS — MOTION + POLISH LAYER (shared across all tools)
+   Presentation only: CSS animations, interaction feedback, depth,
+   comfort. No markup/JS changes. Respects prefers-reduced-motion.
+   ============================================================ */
+
+/* ---- Global comfort ---- */
+html{ scroll-behavior:smooth; }
+body{ -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale; text-rendering:optimizeLegibility; }
+
+/* ---- Keyframes ---- */
+@keyframes vg-rise{ from{ opacity:0; transform:translateY(16px) scale(.99); } to{ opacity:1; transform:none; } }
+@keyframes vg-pop{ from{ opacity:0; transform:scale(.95); } to{ opacity:1; transform:scale(1); } }
+@keyframes vg-fade{ from{ opacity:0; } to{ opacity:1; } }
+@keyframes vg-breathe{ 0%,100%{ box-shadow:0 0 18px rgba(124,58,237,.28); } 50%{ box-shadow:0 0 34px rgba(124,58,237,.55); } }
+@keyframes vg-bg-drift{ from{ background-position:12% -8%, 112% 6%, 0 0; } to{ background-position:17% -2%, 107% 11%, 0 0; } }
+
+/* ---- Living backdrop: very slow drift of the gradient blobs ---- */
+body{ animation:vg-bg-drift 22s ease-in-out infinite alternate; }
+
+/* ---- Entrance for content surfaces (not sticky chrome) ---- */
+.panel,.card,.login-card,.scard,.st-stat-card,.section,.wrap>section,.stat,.stat-card,.kpi,.excel-wrap,.task-tbl-wrap{
+  animation:vg-rise .55s cubic-bezier(.16,1,.3,1) both;
+}
+.scard:nth-child(2),.stat:nth-child(2),.stat-card:nth-child(2){ animation-delay:.06s; }
+.scard:nth-child(3),.stat:nth-child(3),.stat-card:nth-child(3){ animation-delay:.12s; }
+.scard:nth-child(4),.stat:nth-child(4),.stat-card:nth-child(4){ animation-delay:.18s; }
+.panel + .panel{ animation-delay:.07s; }
+
+/* modal / overlay entrance */
+.modal-bg,.modal-overlay,#previewModal,#stPopupOverlay{ animation:vg-fade .22s ease both; }
+.modal,.modal-bg>div,#stPopupOverlay>div{ animation:vg-pop .3s cubic-bezier(.16,1,.3,1) both; }
+
+/* ---- Smooth interaction transitions ---- */
+button,.btn,.btn-primary,.btn-ghost,.btn-success,.login-btn,.tab-btn,.sub-tab,.icon-btn,.recon-btn,
+.export-btn,.logout-btn,.theme-btn,.proj-chip,.modal-close,
+input,select,textarea,a,.card,.scard,.stat,.stat-card,.st-stat-card,.kpi,tr{
+  transition:transform .18s cubic-bezier(.16,1,.3,1), box-shadow .22s ease,
+             background-color .2s ease, border-color .2s ease, color .18s ease, filter .2s ease;
+}
+
+/* ---- Buttons: lift, press, focus, shine (tabs excluded from lift) ---- */
+button:not(.tab-btn):not(.sub-tab):hover,.btn:hover,.btn-primary:hover,.login-btn:hover,
+.btn-success:hover,.btn-ghost:hover,.export-btn:hover,.icon-btn:hover{ transform:translateY(-2px); }
+button:not(.tab-btn):not(.sub-tab):active,.btn:active,.btn-primary:active,.login-btn:active{ transform:translateY(0) scale(.97); }
+button:focus-visible,.btn:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{
+  outline:2px solid rgba(167,139,250,.7); outline-offset:2px;
+}
+.btn-primary,.login-btn,.btn-success{ position:relative; overflow:hidden; isolation:isolate; }
+.btn-primary::after,.login-btn::after,.btn-success::after{
+  content:""; position:absolute; inset:0; z-index:-1;
+  background:linear-gradient(115deg,transparent 30%,rgba(255,255,255,.30) 50%,transparent 70%);
+  transform:translateX(-130%); transition:transform .6s ease;
+}
+.btn-primary:hover::after,.login-btn:hover::after,.btn-success:hover::after{ transform:translateX(130%); }
+
+/* ---- Cards / stat tiles: hover elevation + glow ---- */
+.card:hover,.scard:hover,.stat:hover,.stat-card:hover,.st-stat-card:hover,.kpi:hover,.proj-chip:hover{
+  transform:translateY(-3px);
+  box-shadow:0 20px 44px -18px rgba(124,58,237,.55), inset 0 1px 0 rgba(255,255,255,.08);
+}
+
+/* ---- Glass sheen (subtle top highlight + violet-tinted depth) on surfaces ---- */
+.panel,.card,.login-card,.scard,.st-stat-card,.modal{
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.06), 0 16px 38px -22px rgba(76,29,149,.55);
+}
+
+/* ---- Table rows: hover highlight ---- */
+tbody tr{ transition:background-color .15s ease; }
+tbody tr:hover td{ background:rgba(124,58,237,.09) !important; }
+
+/* ---- Inputs: focus glow ---- */
+input:focus,select:focus,textarea:focus{
+  box-shadow:0 0 0 3px rgba(124,58,237,.22), 0 0 18px -4px rgba(124,58,237,.45) !important;
+}
+
+/* ---- Brand mark: gentle idle breathe ---- */
+.login-logo,.logo,.topbar-icon{ animation:vg-breathe 4.5s ease-in-out infinite; }
+
+/* ---- Spinners: static violet glow (rotation animation left untouched) ---- */
+.loader,.spinner{ filter:drop-shadow(0 0 8px rgba(124,58,237,.55)); }
+
+/* ---- Links: animated underline ---- */
+a:not(.btn):not(.tab-btn):not(.icon-btn):not(.sub-tab){
+  text-decoration:none;
+  background-image:linear-gradient(currentColor,currentColor);
+  background-size:0% 1.5px; background-repeat:no-repeat; background-position:0 100%;
+}
+a:not(.btn):not(.tab-btn):not(.icon-btn):not(.sub-tab):hover{ background-size:100% 1.5px; }
+
+/* ---- Sidebar / nav items nudge on hover ---- */
+nav button:hover,.nav-item:hover{ transform:translateX(2px) !important; }
+
+/* ---- Reduced-motion: disable all of the above ---- */
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{ animation-duration:.001ms !important; animation-iteration-count:1 !important; transition-duration:.001ms !important; }
+  html{ scroll-behavior:auto; }
+  body{ animation:none !important; }
+}
 
 </style>
 </head>
