@@ -4,7 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>QA Team Capacity</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
 :root {
@@ -184,6 +183,38 @@ tbody tr.clickable:hover td:first-child{color:var(--purple)}
 @keyframes scaleIn{from{opacity:0;transform:scale(.96)}to{opacity:1;transform:scale(1)}}
 
 @media(max-width:900px){.main{padding:20px 16px}.header{padding:14px 16px}table{min-width:520px}}
+</style>
+<style id="violet-glass-reskin">
+/* ============================================================
+   VIOLET / GLASS RESKIN — sprint_planning (presentation only)
+   Already purple-accented; unify hue to violet + glass + backdrop.
+   (xlsx.js CDN is a FUNCTIONAL dependency and is left untouched.)
+   ============================================================ */
+:root{
+  --bg-0:#0e0a1e; --bg-1:#15102b; --bg-2:#1b1436; --bg-hover:#241a44; --bg-input:#140d28;
+  --border:#2b2350; --border-hi:#3d3370;
+  --tx-1:#f4f1ff; --tx-2:#a99fce; --tx-3:#6c6392;
+  --purple:#8b5cf6; --purple-g:rgba(124,58,237,.16);
+}
+body{
+  background:
+    radial-gradient(1100px 620px at 12% -8%, rgba(124,58,237,.30), transparent 60%),
+    radial-gradient(950px 680px at 112% 6%, rgba(37,99,235,.26), transparent 55%),
+    var(--bg-0) !important;
+  background-attachment:fixed !important;
+}
+body::before{
+  background-image:
+    radial-gradient(ellipse 80% 50% at 50% 0%, rgba(124,58,237,.07), transparent),
+    linear-gradient(rgba(167,139,250,.03) 1px,transparent 1px),
+    linear-gradient(90deg, rgba(167,139,250,.03) 1px,transparent 1px) !important;
+}
+.header,header{ background:rgba(20,13,40,.72) !important; backdrop-filter:blur(16px) saturate(150%); -webkit-backdrop-filter:blur(16px) saturate(150%); }
+.login-card,.modal,.card,.panel,.section,.box,.scard{ backdrop-filter:blur(12px) saturate(140%); -webkit-backdrop-filter:blur(12px) saturate(140%); }
+.login-logo,.logo{ background:linear-gradient(135deg,#7c3aed,#2563eb) !important; box-shadow:0 0 24px rgba(124,58,237,.35) !important; }
+.login-btn{ background:linear-gradient(135deg,#7c3aed,#2563eb) !important; box-shadow:0 4px 16px rgba(124,58,237,.30) !important; }
+.login-btn:hover{ box-shadow:0 6px 24px rgba(124,58,237,.42) !important; }
+
 </style>
 </head>
 <body>
